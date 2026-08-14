@@ -42,7 +42,6 @@ publishing {
             from(components["java"])
             groupId = "com.lisovskyi"
             artifactId = "lisovskyi-web-error-starter"
-            version = "0.1.1"
         }
     }
 
