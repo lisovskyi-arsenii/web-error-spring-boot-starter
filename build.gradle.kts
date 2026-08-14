@@ -54,3 +54,8 @@ publishing {
 tasks.named<GenerateModuleMetadata>("generateMetadataFileForMavenPublication") {
     suppressedValidationErrors.add("dependencies-without-versions")
 }
+
+// Spring Dependency Management causes Configuration Cache issues on publish: https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/327
+tasks.withType<GenerateMavenPom>().configureEach {
+    notCompatibleWithConfigurationCache("Spring Dependency Management plugin is not compatible with Configuration Cache for POM generation")
+}
