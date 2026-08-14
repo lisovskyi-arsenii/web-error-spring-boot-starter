@@ -19,13 +19,22 @@ import java.util.regex.Pattern;
  */
 public class ValidPasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
-    private Pattern pattern;
-    private String[] messages;
+    private int minLength;
+    private int maxLength;
+    private boolean requireUppercase;
+    private boolean requireLowercase;
+    private boolean requireDigit;
+    private boolean requireSpecialChar;
 
     @Override
     public void initialize(ValidPassword constraintAnnotation) {
-        this.pattern = Pattern.compile(constraintAnnotation.regex());
-        this.messages = constraintAnnotation.messages();
+        this.minLength = constraintAnnotation.minLength();
+        this.maxLength = constraintAnnotation.maxLength();
+
+        this.requireUppercase = constraintAnnotation.requireUppercase();
+        this.requireLowercase = constraintAnnotation.requireLowercase();
+        this.requireDigit = constraintAnnotation.requireDigit();
+        this.requireSpecialChar = constraintAnnotation.requireSpecialChar();
     }
 
     @Override
@@ -34,17 +43,40 @@ public class ValidPasswordValidator implements ConstraintValidator<ValidPassword
             return true;
         }
 
-        if (pattern.matcher(value).matches()) {
-            return true;
-        }
-
         context.disableDefaultConstraintViolation();
+        boolean valid = true;
 
-        for (String msg : messages) {
-            context.buildConstraintViolationWithTemplate(msg)
+        if (value.length() < minLength || value.length() > maxLength) {
+            context.buildConstraintViolationWithTemplate(
+                            "Password must be between " + minLength + " and " + maxLength + " characters")
                     .addConstraintViolation();
+            valid = false;
         }
 
-        return false;
+        if (requireUppercase && value.chars().noneMatch(Character::isUpperCase)) {
+            context.buildConstraintViolationWithTemplate("Password must contain an uppercase letter")
+                    .addConstraintViolation();
+            valid = false;
+        }
+
+        if (requireLowercase && value.chars().noneMatch(Character::isLowerCase)) {
+            context.buildConstraintViolationWithTemplate("Password must contain a lowercase letter")
+                    .addConstraintViolation();
+            valid = false;
+        }
+
+        if (requireDigit && value.chars().noneMatch(Character::isDigit)) {
+            context.buildConstraintViolationWithTemplate("Password must contain a digit")
+                    .addConstraintViolation();
+            valid = false;
+        }
+
+        if (requireSpecialChar && value.chars().allMatch(Character::isLetterOrDigit)) {
+            context.buildConstraintViolationWithTemplate("Password must contain a special character")
+                    .addConstraintViolation();
+            valid = false;
+        }
+
+        return valid;
     }
 }

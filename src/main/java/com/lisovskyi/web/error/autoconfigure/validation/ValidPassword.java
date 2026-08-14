@@ -21,11 +21,14 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = ValidPasswordValidator.class)
 public @interface ValidPassword {
 
-    String regex() default "";
+    int minLength() default 8;
+    int maxLength() default 72;
 
-    String[] messages() default {"Invalid password format"};
+    boolean requireUppercase() default true;
+    boolean requireLowercase() default true;
+    boolean requireDigit() default true;
+    boolean requireSpecialChar() default true;
 
     Class<?>[] groups() default {};
-
     Class<? extends Payload>[] payload() default {};
 }
