@@ -3,8 +3,6 @@ package com.lisovskyi.web.error.autoconfigure.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import java.util.regex.Pattern;
-
 /**
  * Validator for the {@link ValidPassword} constraint.
  * <p>
@@ -12,9 +10,10 @@ import java.util.regex.Pattern;
  * {@code @NotBlank} if the password is required.
  * </p>
  * <p>
- * When the password fails to match the regular expression, this validator loops through the
- * array of messages defined in {@link ValidPassword#messages()} and emits a constraint violation
- * for each message. This ensures the client receives a detailed list of requirements.
+ * When the password fails to meet the specified policies, this validator disables the default
+ * constraint violation and instead emits a distinct violation for each rule (length, uppercase,
+ * lowercase, digit, special character) that was not satisfied. This ensures the client receives
+ * a detailed and granular list of requirements.
  * </p>
  */
 public class ValidPasswordValidator implements ConstraintValidator<ValidPassword, String> {

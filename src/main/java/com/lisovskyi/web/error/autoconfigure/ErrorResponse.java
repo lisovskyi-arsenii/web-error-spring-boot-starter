@@ -15,5 +15,5 @@ public record ErrorResponse(
     Instant timestamp,
     String path,
     List<FieldErrorDto> fieldErrors,
-    String stackTrace)
-{}
+    String stackTrace
+) {}

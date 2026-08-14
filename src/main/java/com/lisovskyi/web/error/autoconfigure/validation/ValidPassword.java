@@ -9,11 +9,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Validation constraint for verifying that a password string matches a specified regular expression.
+ * Validation constraint for verifying password strength requirements.
  * <p>
- * This annotation allows specifying an array of messages instead of a single message.
- * When validation fails, all messages are added to the validation context as individual errors.
- * This is particularly useful for returning a list of password requirements to the frontend.
+ * This annotation allows specifying granular password policies, such as minimum and maximum
+ * length, and requirements for uppercase letters, lowercase letters, digits, and special characters.
+ * </p>
+ * <p>
+ * Instead of emitting a single constraint violation, this constraint will yield multiple violations
+ * — one for each requirement that the password fails to meet. This is particularly useful for
+ * returning a list of specific password requirements to the frontend.
  * </p>
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -28,6 +32,8 @@ public @interface ValidPassword {
     boolean requireLowercase() default true;
     boolean requireDigit() default true;
     boolean requireSpecialChar() default true;
+
+    String message() default "Invalid password";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
