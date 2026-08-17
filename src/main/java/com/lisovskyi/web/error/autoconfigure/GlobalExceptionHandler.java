@@ -4,6 +4,8 @@ import com.lisovskyi.web.error.autoconfigure.base.AppException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,9 +20,17 @@ import java.io.StringWriter;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Holds the catch-all {@code @ExceptionHandler(Exception.class)} fallback, so
+ * it must be ordered <em>after</em> more specific advice beans such as
+ * {@link SecurityExceptionHandler} — otherwise this bean's catch-all would
+ * shadow their more specific handlers (see {@link SecurityExceptionHandler}
+ * for why).
+ */
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class GlobalExceptionHandler {
     private final ErrorProperties properties;
 
@@ -67,6 +77,12 @@ public class GlobalExceptionHandler {
         log.warn("Method argument type mismatch: parameter '{}'", ex.getName());
         String message = String.format("Parameter '%s' should be of type '%s'", ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
         return buildResponse(HttpStatus.BAD_REQUEST, "TYPE_MISMATCH", message, request, null, ex);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        log.warn("Illegal argument on path [{}]: {}", request.getRequestURI(), ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage(), request, null, ex);
     }
 
     @ExceptionHandler(Exception.class)
